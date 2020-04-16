@@ -38,12 +38,12 @@ enum class SubId2 : char
 class UniversalSysExMessageBase
 {
 public:
-    UniversalSysExMessageBase(SubId2 m_MessageId, uint32_t sourceMuid, uint32_t destMuid);
+    UniversalSysExMessageBase(SubId2 messageId, DeviceId deviceId, uint32_t sourceMuid, uint32_t destMuid);
     virtual ~UniversalSysExMessageBase() {}
 
     int GetMessageSize();
-    virtual int Write(void* buffer, size_t bufferSize);
-    virtual void Dump();
+    int Write(void* buffer, size_t bufferSize);
+    void Dump();
 
 protected:
     virtual int GetDataSize() { return 0; }
@@ -66,15 +66,18 @@ enum class CiCategorySupportedBitFlag : char
 class DiscoveryMessage : UniversalSysExMessageBase
 {
 public:
-    DiscoveryMessage(uint32_t deviceManufacturer,
+    DiscoveryMessage(uint32_t sourceMuid,
+                     uint32_t destMuid,
+                     uint32_t deviceManufacturer,
                      uint16_t deviceFamily,
                      uint16_t familyModelNumber,
                      uint32_t softwareRevisionLevel,
                      CiCategorySupportedBitFlag categorySupported,
                      uint32_t receivableMaximumSysExMessageSize);
 
-    virtual int Write(void* buffer, size_t bufferSize) override;
-    virtual void Dump() override;
+protected:
+    virtual int GetDataSize() override;
+    virtual void OnDataWritten(void* buffer, size_t bufferSize) override;
 
 private:
     uint32_t m_DeviceManufacturer; // 3byte
@@ -88,15 +91,18 @@ private:
 class ReplyToDiscoveryMessage : UniversalSysExMessageBase
 {
 public:
-    ReplyToDiscoveryMessage(uint32_t deviceManufacturer,
+    ReplyToDiscoveryMessage(uint32_t sourceMuid,
+                            uint32_t destMuid,
+                            uint32_t deviceManufacturer,
                             uint16_t deviceFamily,
                             uint16_t familyModelNumber,
                             uint32_t softwareRevisionLevel,
                             CiCategorySupportedBitFlag categorySupported,
                             uint32_t receivableMaximumSysExMessageSize);
 
-    virtual int Write(void* buffer, size_t bufferSize) override;
-    virtual void Dump() override;
+protected:
+    virtual int GetDataSize() override;
+    virtual void OnDataWritten(void* buffer, size_t bufferSize) override;
 
 private:
     uint32_t m_DeviceManufacturer; // 3byte

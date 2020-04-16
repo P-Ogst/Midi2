@@ -25,4 +25,9 @@
       <Filter>ヘッダー ファイル\midici</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\midici\midi2_MidiCiMessages.cpp">
+      <Filter>ソース ファイル\midici</Filter>
+    </ClCompile>
+  </ItemGroup>
 </Project>
