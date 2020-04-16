@@ -30,10 +30,10 @@ int main()
 
     bool isExit = false;
     char buffer[256];
-    DWORD bytesRead;
+    DWORD bufferBytes;
     while (!isExit)
     {
-        if (!ReadFile(pipeHandle, buffer, sizeof(buffer), &bytesRead, nullptr))
+        if (!ReadFile(pipeHandle, buffer, sizeof(buffer), &bufferBytes, nullptr))
         {
             printf("Cannot read NamedPipe");
             isExit = true;
@@ -44,8 +44,22 @@ int main()
             isExit = true;
             continue;
         }
-        buffer[bytesRead] = '\0';
-        printf("Message: %s\n", buffer);
+        buffer[bufferBytes] = '\0';
+        printf("ReceivedMessage: %s\n", buffer);
+
+        printf("Input Message: ");
+        std::cin >> buffer;
+        if (!WriteFile(pipeHandle, buffer, sizeof(buffer) - 1, &bufferBytes, nullptr))
+        {
+            printf("Cannot write NamedPipe.");
+            isExit = true;
+            continue;
+        }
+        if (strncmp("End", buffer, sizeof("End")) == 0)
+        {
+            isExit = true;
+            continue;
+        }
     }
 
     FlushFileBuffers(pipeHandle);
