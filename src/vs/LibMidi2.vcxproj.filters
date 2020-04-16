@@ -13,5 +13,16 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="ソース ファイル\midici">
+      <UniqueIdentifier>{5103c3d6-e8ed-4e12-9a4c-40c637f874c7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\midici">
+      <UniqueIdentifier>{174dc6a6-7d15-4f48-86a9-9de7dd735982}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\include\midici\midi2_MidiCiMessages.h">
+      <Filter>ヘッダー ファイル\midici</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
