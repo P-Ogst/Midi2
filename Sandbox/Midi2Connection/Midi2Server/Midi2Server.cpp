@@ -2,19 +2,54 @@
 //
 
 #include <iostream>
+#include <windows.h>
 
 int main()
 {
-    std::cout << "Hello World!\n";
+    HANDLE pipeHandle = INVALID_HANDLE_VALUE;
+    pipeHandle = CreateNamedPipeA("\\\\.\\pipe\\Midi2Sandbox",
+        PIPE_ACCESS_DUPLEX,
+        PIPE_TYPE_BYTE | PIPE_WAIT,
+        1,
+        0,
+        0,
+        100,
+        nullptr);
+
+    if (pipeHandle == INVALID_HANDLE_VALUE)
+    {
+        printf("Cannot create NamedPipe.\n");
+        return -1;
+    }
+
+    if (!ConnectNamedPipe(pipeHandle, nullptr))
+    {
+        printf("Cannot connect to NamedPipe");
+        CloseHandle(pipeHandle);
+    }
+
+    bool isExit = false;
+    char buffer[256];
+    DWORD bytesRead;
+    while (!isExit)
+    {
+        if (!ReadFile(pipeHandle, buffer, sizeof(buffer), &bytesRead, nullptr))
+        {
+            printf("Cannot read NamedPipe");
+            isExit = true;
+            continue;
+        }
+        if (strncmp("End", buffer, sizeof("End")) == 0)
+        {
+            isExit = true;
+            continue;
+        }
+        buffer[bytesRead] = '\0';
+        printf("Message: %s\n", buffer);
+    }
+
+    FlushFileBuffers(pipeHandle);
+    DisconnectNamedPipe(pipeHandle);
+    CloseHandle(pipeHandle);
+    return 0;
 }
-
-// プログラムの実行: Ctrl + F5 または [デバッグ] > [デバッグなしで開始] メニュー
-// プログラムのデバッグ: F5 または [デバッグ] > [デバッグの開始] メニュー
-
-// 作業を開始するためのヒント: 
-//    1. ソリューション エクスプローラー ウィンドウを使用してファイルを追加/管理します 
-//   2. チーム エクスプローラー ウィンドウを使用してソース管理に接続します
-//   3. 出力ウィンドウを使用して、ビルド出力とその他のメッセージを表示します
-//   4. エラー一覧ウィンドウを使用してエラーを表示します
-//   5. [プロジェクト] > [新しい項目の追加] と移動して新しいコード ファイルを作成するか、[プロジェクト] > [既存の項目の追加] と移動して既存のコード ファイルをプロジェクトに追加します
-//   6. 後ほどこのプロジェクトを再び開く場合、[ファイル] > [開く] > [プロジェクト] と移動して .sln ファイルを選択します
