@@ -29,7 +29,8 @@ enum class SubId1 : char
     MidiCi = 0x0D,
 };
 
-enum class SubId2 : char
+// SubId2
+enum class MessageType : char
 {
     Discovery = 0x70,
     ReplyToDiscovery = 0x71,
@@ -38,10 +39,11 @@ enum class SubId2 : char
 class UniversalSysExMessageBase
 {
 public:
-    UniversalSysExMessageBase(SubId2 messageId, DeviceId deviceId, uint32_t sourceMuid, uint32_t destMuid);
+    UniversalSysExMessageBase(MessageType messageId, DeviceId deviceId, uint32_t sourceMuid, uint32_t destMuid);
     virtual ~UniversalSysExMessageBase() {}
 
-    int GetMessageSize();
+    MessageType GetMessageType();
+    size_t GetMessageSize();
     int Write(void* buffer, size_t bufferSize);
     void Dump();
 
@@ -50,7 +52,7 @@ protected:
     virtual void OnDataWritten(void* buffer, size_t bufferSize) {}
 
 private:
-    SubId2 m_MessageId;
+    MessageType m_MessageType;
     DeviceId m_DeviceId;
     uint32_t m_SourceMuid;
     uint32_t m_DestMuid;
