@@ -4,8 +4,14 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 16.0.29926.136
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Midi2Client", "Midi2Client\Midi2Client.vcxproj", "{959F0EA1-F55F-4B79-97A5-1BD4F7E074EC}"
+	ProjectSection(ProjectDependencies) = postProject
+		{05BC3FC4-4690-47E7-A3B3-F420CF14888B} = {05BC3FC4-4690-47E7-A3B3-F420CF14888B}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Midi2Server", "Midi2Server\Midi2Server.vcxproj", "{E06198AD-73E7-4305-81E6-8F55B51167BB}"
+	ProjectSection(ProjectDependencies) = postProject
+		{05BC3FC4-4690-47E7-A3B3-F420CF14888B} = {05BC3FC4-4690-47E7-A3B3-F420CF14888B}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LibMidi2", "..\..\src\vs\LibMidi2.vcxproj", "{05BC3FC4-4690-47E7-A3B3-F420CF14888B}"
 EndProject
