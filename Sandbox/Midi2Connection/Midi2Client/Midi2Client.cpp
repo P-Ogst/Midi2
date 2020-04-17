@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <windows.h>
+#include <midici/midi2_MidiCiMessages.h>
 
 int main()
 {
@@ -27,8 +28,14 @@ int main()
 
     while (!isExit)
     {
-        printf("Input Message: ");
-        std::cin >> buffer;
+        midi2::midici::UniversalSysExMessageBase message = midi2::midici::UniversalSysExMessageBase(midi2::midici::MessageType::Discovery, midi2::midici::DeviceId::MidiPort, 0u, 0u);
+        auto messageBytes = message.Write(buffer, sizeof(buffer) - 1);
+        if (messageBytes < 0)
+        {
+            isExit = true;
+            continue;
+        }
+
         if (!WriteFile(pipeHandle, buffer, sizeof(buffer) - 1, &bufferBytes, nullptr))
         {
             printf("Cannot write NamedPipe.");
