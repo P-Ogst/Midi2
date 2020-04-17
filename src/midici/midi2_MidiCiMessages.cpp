@@ -109,7 +109,7 @@ void UniversalSysExMessageBase::Dump()
     printf("MidiMessage: ");
     for (int i = 0; i < writeBytes; ++i)
     {
-        printf("%x ", buf[i]);
+        printf("%02x ", static_cast<unsigned char>(buf[i]));
     }
     printf("\n");
 }
