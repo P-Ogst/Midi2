@@ -12,12 +12,12 @@ void WriteToBuffer(void* buffer, size_t bufferSize, uint32_t value)
         return;
     }
 
-    char valueBuffer[sizeof(uint32_t) + 1];
-    sprintf_s(valueBuffer, "%d", value);
+    char* valuePtr = reinterpret_cast<char*>(&value);
     char* bufferPtr = reinterpret_cast<char*>(buffer);
     for (int i = 0; i < sizeof(uint32_t); ++i)
     {
-        *bufferPtr = valueBuffer[i];
+        *bufferPtr = *valuePtr;
+        valuePtr++;
         bufferPtr++;
     }
 }
@@ -38,7 +38,7 @@ MessageType UniversalSysExMessageBase::GetMessageType()
 
 size_t UniversalSysExMessageBase::GetMessageSize()
 {
-    return 15 + GetDataSize();
+    return static_cast<size_t>(15) + GetDataSize();
 }
 
 int UniversalSysExMessageBase::Write(void* buffer, size_t bufferSize)
@@ -79,7 +79,7 @@ int UniversalSysExMessageBase::Write(void* buffer, size_t bufferSize)
     // End Universal System Exclusive
     *bufferPtr = static_cast<char>(0xF7);
     bufferPtr++;
-    return GetMessageSize();
+    return static_cast<int>(GetMessageSize());
 }
 
 void UniversalSysExMessageBase::Dump()
@@ -106,6 +106,17 @@ DiscoveryMessage::DiscoveryMessage(uint32_t sourceMuid, uint32_t destMuid, uint3
 {
 }
 
+int DiscoveryMessage::GetDataSize()
+{
+    // TODO: Implmentation
+    return 0;
+}
+
+void DiscoveryMessage::OnDataWritten(void* buffer, size_t bufferSize)
+{
+    // TODO: Implmentation
+}
+
 ReplyToDiscoveryMessage::ReplyToDiscoveryMessage(uint32_t sourceMuid, uint32_t destMuid, uint32_t deviceManufacturer, uint16_t deviceFamily, uint16_t familyModelNumber, uint32_t softwareRevisionLevel, CiCategorySupportedBitFlag categorySupported, uint32_t receivableMaximumSysExMessageSize)
     : UniversalSysExMessageBase(MessageType::ReplyToDiscovery, DeviceId::MidiPort, sourceMuid, destMuid)
     , m_DeviceManufacturer(deviceManufacturer)
@@ -115,6 +126,17 @@ ReplyToDiscoveryMessage::ReplyToDiscoveryMessage(uint32_t sourceMuid, uint32_t d
     , m_CategorySupported(categorySupported)
     , m_ReceivableMaximumSysExMessageSize(receivableMaximumSysExMessageSize)
 {
+}
+
+int ReplyToDiscoveryMessage::GetDataSize()
+{
+    // TODO: Implmentation
+    return 0;
+}
+
+void ReplyToDiscoveryMessage::OnDataWritten(void* buffer, size_t bufferSize)
+{
+    // TODO: Implmentation
 }
 
 }
