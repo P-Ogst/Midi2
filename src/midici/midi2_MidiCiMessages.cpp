@@ -22,6 +22,24 @@ void WriteToBuffer(void* buffer, size_t bufferSize, T value)
         bufferPtr++;
     }
 }
+
+template <class T>
+void WriteToBufferAsUint24(void* buffer, size_t bufferSize, T value)
+{
+    if (bufferSize < 3)
+    {
+        return;
+    }
+
+    char* valuePtr = reinterpret_cast<char*>(&value);
+    char* bufferPtr = reinterpret_cast<char*>(buffer);
+    for (int i = 0; i < 3; ++i)
+    {
+        *bufferPtr = *valuePtr;
+        valuePtr++;
+        bufferPtr++;
+    }
+}
 }
 
 UniversalSysExMessageBase::UniversalSysExMessageBase(MessageType messageId, DeviceId deviceId, uint32_t sourceMuid, uint32_t destMuid)
@@ -56,24 +74,24 @@ int UniversalSysExMessageBase::Write(void* buffer, size_t bufferSize)
     // Universal System Exclusive
     *bufferPtr = 0x7E;
     bufferPtr++;
-    // Device ID
+
     *bufferPtr = static_cast<char>(m_DeviceId);
     bufferPtr++;
-    // Sub-ID#1
     *bufferPtr = static_cast<char>(SubId1::MidiCi);
     bufferPtr++;
-    // Sub-ID#2 (MessageType)
     *bufferPtr = static_cast<char>(m_MessageType);
     bufferPtr++;
+
     // MIDI-CI MessageVersion (indicates MIDI-CI version 1.1)
     *bufferPtr = 0x01;
     bufferPtr++;
-    // TODO: Add MUID Write process
+
     WriteToBuffer(bufferPtr, 4, m_SourceMuid);
     bufferPtr += 4;
     WriteToBuffer(bufferPtr, 4, m_DestMuid);
     bufferPtr += 4;
 
+    // Message Data
     OnDataWritten(bufferPtr, bufferSize - 15);
     bufferPtr += GetDataSize();
 
@@ -96,8 +114,8 @@ void UniversalSysExMessageBase::Dump()
     printf("\n");
 }
 
-DiscoveryMessage::DiscoveryMessage(uint32_t sourceMuid, uint32_t destMuid, uint32_t deviceManufacturer, uint16_t deviceFamily, uint16_t familyModelNumber, uint32_t softwareRevisionLevel, CiCategorySupportedBitFlag categorySupported, uint32_t receivableMaximumSysExMessageSize)
-    : UniversalSysExMessageBase(MessageType::Discovery, DeviceId::MidiPort, sourceMuid, destMuid)
+DiscoveryMessage::DiscoveryMessage(uint32_t sourceMuid, uint32_t deviceManufacturer, uint16_t deviceFamily, uint16_t familyModelNumber, uint32_t softwareRevisionLevel, CiCategorySupportedBitFlag categorySupported, uint32_t receivableMaximumSysExMessageSize)
+    : UniversalSysExMessageBase(MessageType::Discovery, DeviceId::MidiPort, sourceMuid, (uint32_t)Muid::BloadcastMuid)
     , m_DeviceManufacturer(deviceManufacturer)
     , m_DeviceFamily(deviceFamily)
     , m_FamilyModelNumber(familyModelNumber)
@@ -109,13 +127,24 @@ DiscoveryMessage::DiscoveryMessage(uint32_t sourceMuid, uint32_t destMuid, uint3
 
 int DiscoveryMessage::GetDataSize()
 {
-    // TODO: Implmentation
-    return 0;
+    return 16;
 }
 
 void DiscoveryMessage::OnDataWritten(void* buffer, size_t bufferSize)
 {
-    // TODO: Implmentation
+    char* bufferPtr = reinterpret_cast<char*>(buffer);
+    WriteToBufferAsUint24(bufferPtr, 3, m_DeviceManufacturer);
+    bufferPtr += 3;
+    WriteToBuffer(bufferPtr, 2, m_DeviceFamily);
+    bufferPtr += 2;
+    WriteToBuffer(bufferPtr, 2, m_FamilyModelNumber);
+    bufferPtr += 2;
+    WriteToBuffer(bufferPtr, 4, m_SoftwareRevisionLevel);
+    bufferPtr += 4;
+    WriteToBuffer(bufferPtr, 1, m_CategorySupported);
+    bufferPtr += 1;
+    WriteToBuffer(bufferPtr, 4, m_ReceivableMaximumSysExMessageSize);
+    bufferPtr += 4;
 }
 
 ReplyToDiscoveryMessage::ReplyToDiscoveryMessage(uint32_t sourceMuid, uint32_t destMuid, uint32_t deviceManufacturer, uint16_t deviceFamily, uint16_t familyModelNumber, uint32_t softwareRevisionLevel, CiCategorySupportedBitFlag categorySupported, uint32_t receivableMaximumSysExMessageSize)

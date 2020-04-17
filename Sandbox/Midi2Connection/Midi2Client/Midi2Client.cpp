@@ -27,7 +27,7 @@ int main()
 
     while (true)
     {
-        midi2::midici::UniversalSysExMessageBase message = midi2::midici::UniversalSysExMessageBase(midi2::midici::MessageType::Discovery, midi2::midici::DeviceId::MidiPort, 0u, 0u);
+        midi2::midici::DiscoveryMessage message = midi2::midici::DiscoveryMessage(0u, 0u, 0u, 0u, 0u, midi2::midici::CiCategorySupportedBitFlag::None , 256u);
         auto messageBytes = message.Write(buffer, sizeof(buffer) - 1);
         if (messageBytes < 0)
         {

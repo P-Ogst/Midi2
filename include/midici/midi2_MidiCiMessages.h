@@ -60,16 +60,21 @@ private:
 
 enum class CiCategorySupportedBitFlag : char
 {
+    None = 0,
     ProtocolNegotiationSupported = 1 << 1,
     ProfileConfigurationSupported = 1 << 2,
     PropertyExchangeSupported = 1 << 3,
 };
 
-class DiscoveryMessage : UniversalSysExMessageBase
+enum class Muid : uint32_t
+{
+    BloadcastMuid = 0x7F7F7F7F,
+};
+
+class DiscoveryMessage : public UniversalSysExMessageBase
 {
 public:
     DiscoveryMessage(uint32_t sourceMuid,
-                     uint32_t destMuid,
                      uint32_t deviceManufacturer,
                      uint16_t deviceFamily,
                      uint16_t familyModelNumber,
@@ -90,7 +95,7 @@ private:
     uint32_t m_ReceivableMaximumSysExMessageSize;
 };
 
-class ReplyToDiscoveryMessage : UniversalSysExMessageBase
+class ReplyToDiscoveryMessage : public UniversalSysExMessageBase
 {
 public:
     ReplyToDiscoveryMessage(uint32_t sourceMuid,
