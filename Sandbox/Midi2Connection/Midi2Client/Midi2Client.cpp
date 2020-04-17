@@ -22,42 +22,36 @@ int main()
         return -1;
     }
 
-    bool isExit = false;
     char buffer[256];
     DWORD bufferBytes;
 
-    while (!isExit)
+    while (true)
     {
         midi2::midici::UniversalSysExMessageBase message = midi2::midici::UniversalSysExMessageBase(midi2::midici::MessageType::Discovery, midi2::midici::DeviceId::MidiPort, 0u, 0u);
         auto messageBytes = message.Write(buffer, sizeof(buffer) - 1);
         if (messageBytes < 0)
         {
-            isExit = true;
-            continue;
+            break;
         }
 
         if (!WriteFile(pipeHandle, buffer, sizeof(buffer) - 1, &bufferBytes, nullptr))
         {
             printf("Cannot write NamedPipe.");
-            isExit = true;
-            continue;
+            break;
         }
         if (strncmp("End", buffer, sizeof("End")) == 0)
         {
-            isExit = true;
-            continue;
+            break;
         }
 
         if (!ReadFile(pipeHandle, buffer, sizeof(buffer), &bufferBytes, nullptr))
         {
             printf("Cannot read NamedPipe");
-            isExit = true;
-            continue;
+            break;
         }
         if (strncmp("End", buffer, sizeof("End")) == 0)
         {
-            isExit = true;
-            continue;
+            break;
         }
         buffer[bufferBytes] = '\0';
         printf("ReceivedMessage: %s\n", buffer);

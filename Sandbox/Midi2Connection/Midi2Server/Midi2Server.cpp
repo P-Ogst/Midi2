@@ -28,21 +28,18 @@ int main()
         CloseHandle(pipeHandle);
     }
 
-    bool isExit = false;
     char buffer[256];
     DWORD bufferBytes;
-    while (!isExit)
+    while (true)
     {
         if (!ReadFile(pipeHandle, buffer, sizeof(buffer), &bufferBytes, nullptr))
         {
             printf("Cannot read NamedPipe");
-            isExit = true;
-            continue;
+            break;
         }
         if (strncmp("End", buffer, sizeof("End")) == 0)
         {
-            isExit = true;
-            continue;
+            break;
         }
         buffer[bufferBytes] = '\0';
         printf("ReceivedMessage: %s\n", buffer);
@@ -52,13 +49,11 @@ int main()
         if (!WriteFile(pipeHandle, buffer, sizeof(buffer) - 1, &bufferBytes, nullptr))
         {
             printf("Cannot write NamedPipe.");
-            isExit = true;
-            continue;
+            break;
         }
         if (strncmp("End", buffer, sizeof("End")) == 0)
         {
-            isExit = true;
-            continue;
+            break;
         }
     }
 
