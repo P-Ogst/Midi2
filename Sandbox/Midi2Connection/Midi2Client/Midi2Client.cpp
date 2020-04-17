@@ -28,19 +28,15 @@ int main()
     while (true)
     {
         midi2::midici::DiscoveryMessage message = midi2::midici::DiscoveryMessage(0u, 0u, 0u, 0u, 0u, midi2::midici::CiCategorySupportedBitFlag::None , 256u);
-        auto messageBytes = message.Write(buffer, sizeof(buffer) - 1);
+        DWORD messageBytes = message.Write(buffer, sizeof(buffer) - 1);
         if (messageBytes < 0)
         {
             break;
         }
 
-        if (!WriteFile(pipeHandle, buffer, sizeof(buffer) - 1, &bufferBytes, nullptr))
+        if (!WriteFile(pipeHandle, buffer, messageBytes, &bufferBytes, nullptr))
         {
             printf("Cannot write NamedPipe.");
-            break;
-        }
-        if (strncmp("End", buffer, sizeof("End")) == 0)
-        {
             break;
         }
 
@@ -49,12 +45,9 @@ int main()
             printf("Cannot read NamedPipe");
             break;
         }
-        if (strncmp("End", buffer, sizeof("End")) == 0)
-        {
-            break;
-        }
         buffer[bufferBytes] = '\0';
         printf("ReceivedMessage: %s\n", buffer);
+        break;
     }
 
     CloseHandle(pipeHandle);

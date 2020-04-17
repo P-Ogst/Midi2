@@ -160,13 +160,24 @@ ReplyToDiscoveryMessage::ReplyToDiscoveryMessage(uint32_t sourceMuid, uint32_t d
 
 int ReplyToDiscoveryMessage::GetDataSize()
 {
-    // TODO: Implmentation
-    return 0;
+    return 16;
 }
 
 void ReplyToDiscoveryMessage::OnDataWritten(void* buffer, size_t bufferSize)
 {
-    // TODO: Implmentation
+    char* bufferPtr = reinterpret_cast<char*>(buffer);
+    WriteToBufferAsUint24(bufferPtr, 3, m_DeviceManufacturer);
+    bufferPtr += 3;
+    WriteToBuffer(bufferPtr, 2, m_DeviceFamily);
+    bufferPtr += 2;
+    WriteToBuffer(bufferPtr, 2, m_FamilyModelNumber);
+    bufferPtr += 2;
+    WriteToBuffer(bufferPtr, 4, m_SoftwareRevisionLevel);
+    bufferPtr += 4;
+    WriteToBuffer(bufferPtr, 1, m_CategorySupported);
+    bufferPtr += 1;
+    WriteToBuffer(bufferPtr, 4, m_ReceivableMaximumSysExMessageSize);
+    bufferPtr += 4;
 }
 
 }

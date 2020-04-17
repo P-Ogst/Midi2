@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <windows.h>
+#include <midici\midi2_MidiCiMessages.h>
 
 int main()
 {
@@ -37,24 +38,17 @@ int main()
             printf("Cannot read NamedPipe");
             break;
         }
-        if (strncmp("End", buffer, sizeof("End")) == 0)
-        {
-            break;
-        }
         buffer[bufferBytes] = '\0';
         printf("ReceivedMessage: %s\n", buffer);
 
-        printf("Input Message: ");
-        std::cin >> buffer;
-        if (!WriteFile(pipeHandle, buffer, sizeof(buffer) - 1, &bufferBytes, nullptr))
+        midi2::midici::ReplyToDiscoveryMessage message = midi2::midici::ReplyToDiscoveryMessage(0u, 0u, 0u, 0u, 0u, 0u, midi2::midici::CiCategorySupportedBitFlag::None, 256u);
+        DWORD messageBytes = message.Write(buffer, sizeof(buffer) - 1);
+        if (!WriteFile(pipeHandle, buffer, messageBytes, &bufferBytes, nullptr))
         {
             printf("Cannot write NamedPipe.");
             break;
         }
-        if (strncmp("End", buffer, sizeof("End")) == 0)
-        {
-            break;
-        }
+        break;
     }
 
     FlushFileBuffers(pipeHandle);
