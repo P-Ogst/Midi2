@@ -5,16 +5,17 @@ namespace midi2 { namespace midici {
 
 namespace
 {
-void WriteToBuffer(void* buffer, size_t bufferSize, uint32_t value)
+template <class T>
+void WriteToBuffer(void* buffer, size_t bufferSize, T value)
 {
-    if (bufferSize < sizeof(uint32_t))
+    if (bufferSize < sizeof(T))
     {
         return;
     }
 
     char* valuePtr = reinterpret_cast<char*>(&value);
     char* bufferPtr = reinterpret_cast<char*>(buffer);
-    for (int i = 0; i < sizeof(uint32_t); ++i)
+    for (int i = 0; i < sizeof(T); ++i)
     {
         *bufferPtr = *valuePtr;
         valuePtr++;
