@@ -6,6 +6,26 @@ namespace midi2 { namespace midici {
 namespace
 {
 template <class T>
+T ReadFromBuffer(void* buffer, size_t bufferSize)
+{
+    if (bufferSize < sizeof(T))
+    {
+        return 0;
+    }
+
+    T result = 0;
+    char* bufferPtr = reinterpret_cast<char*>(buffer);
+    char* resultPtr = reinterpret_cast<char*>(&result);
+    for (int i = 0; i < sizeof(T); ++i)
+    {
+        *resultPtr = *bufferPtr;
+        bufferPtr++;
+        resultPtr++;
+    }
+    return result;
+}
+
+template <class T>
 void WriteToBuffer(void* buffer, size_t bufferSize, T value)
 {
     if (bufferSize < sizeof(T))
@@ -108,8 +128,68 @@ int UniversalSysExMessageBase::Write(void* buffer, size_t bufferSize)
 
 int UniversalSysExMessageBase::Read(void* buffer, size_t bufferSize)
 {
-    // TODO: Implmentation
-    return -1;
+    if (bufferSize < GetMessageSize())
+    {
+        return -1;
+    }
+
+    auto bufferPtr = reinterpret_cast<char*>(buffer);
+    // SystemExclusive Start
+    if (*bufferPtr != static_cast<char>(0xF0))
+    {
+        return -1;
+    }
+    bufferPtr++;
+    // Universal System Exclusive
+    if (*bufferPtr != static_cast<char>(0x7E))
+    {
+        return -1;
+    }
+    bufferPtr++;
+
+    m_DeviceId = static_cast<DeviceId>(*bufferPtr);
+    bufferPtr++;
+
+    // Sub-ID(MIDI-CI)
+    if (*bufferPtr != static_cast<char>(SubId1::MidiCi))
+    {
+        return -1;
+    }
+    bufferPtr++;
+
+    auto messageType = static_cast<MessageType>(*bufferPtr);
+    if (m_MessageType != messageType)
+    {
+        return -1;
+    }
+    bufferPtr++;
+
+    auto version = static_cast<char>(*bufferPtr);
+    if (version != 0x01)
+    {
+        return -1;
+    }
+    bufferPtr++;
+
+    m_SourceMuid = ReadFromBuffer<uint32_t>(bufferPtr, 4);
+    bufferPtr += 4;
+    
+    m_DestMuid = ReadFromBuffer<uint32_t>(bufferPtr, 4);
+    bufferPtr += 4;
+
+    // TODO: override Ç™Ç§Ç‹Ç≠Ç¢Ç¡ÇƒÇ¢Ç»Ç¢óùóRÇÃí≤ç∏
+    if (!OnDataRead(bufferPtr, GetDataSize()))
+    {
+        return -1;
+    }
+    bufferPtr += GetDataSize();
+
+    if (*bufferPtr != static_cast<char>(0xF7))
+    {
+        return -1;
+    }
+
+    return GetMessageSize();
 }
 
 void UniversalSysExMessageBase::Dump()
@@ -136,7 +216,7 @@ DiscoveryMessage::DiscoveryMessage()
 }
 
 DiscoveryMessage::DiscoveryMessage(uint32_t sourceMuid, uint32_t deviceManufacturer, uint16_t deviceFamily, uint16_t familyModelNumber, uint32_t softwareRevisionLevel, CiCategorySupportedBitFlag categorySupported, uint32_t receivableMaximumSysExMessageSize)
-    : UniversalSysExMessageBase(MessageType::Discovery, DeviceId::MidiPort, sourceMuid, (uint32_t)Muid::BloadcastMuid)
+    : UniversalSysExMessageBase(MessageType::Discovery, DeviceId::MidiPort, sourceMuid, static_cast<uint32_t>(Muid::BloadcastMuid))
     , m_DeviceManufacturer(deviceManufacturer)
     , m_DeviceFamily(deviceFamily)
     , m_FamilyModelNumber(familyModelNumber)
@@ -168,8 +248,9 @@ void DiscoveryMessage::OnDataWritten(void* buffer, size_t bufferSize)
     bufferPtr += 4;
 }
 
-void DiscoveryMessage::OnDataRead(void* buffer, size_t bufferSize)
+bool DiscoveryMessage::OnDataRead(void* buffer, size_t bufferSize)
 {
+    return false;
 }
 
 ReplyToDiscoveryMessage::ReplyToDiscoveryMessage()
@@ -210,13 +291,28 @@ void ReplyToDiscoveryMessage::OnDataWritten(void* buffer, size_t bufferSize)
     bufferPtr += 4;
 }
 
-void ReplyToDiscoveryMessage::OnDataRead(void* buffer, size_t bufferSize)
+bool ReplyToDiscoveryMessage::OnDataRead(void* buffer, size_t bufferSize)
 {
+    return false;
 }
 
 InvalidMessage::InvalidMessage()
     : UniversalSysExMessageBase(MessageType::Invalid, static_cast<DeviceId>(-1), static_cast<uint32_t>(-1), static_cast<uint32_t>(-1))
 {
+}
+
+int InvalidMessage::GetDataSize()
+{
+    return 0;
+}
+
+void InvalidMessage::OnDataWritten(void* buffer, size_t bufferSize)
+{
+}
+
+bool InvalidMessage::OnDataRead(void* buffer, size_t bufferSize)
+{
+    return false;
 }
 
 }

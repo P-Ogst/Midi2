@@ -44,16 +44,16 @@ public:
     virtual ~UniversalSysExMessageBase() {}
 
     MessageType GetMessageType();
-    size_t GetMessageSize();
+    virtual size_t GetMessageSize();
     static size_t GetMessageSizeMin();
-    int Write(void* buffer, size_t bufferSize);
-    int Read(void* buffer, size_t bufferSize);
+    virtual int Write(void* buffer, size_t bufferSize);
+    virtual int Read(void* buffer, size_t bufferSize);
     void Dump();
 
-protected:
+public:
     virtual int GetDataSize() { return 0; }
     virtual void OnDataWritten(void* buffer, size_t bufferSize) {}
-    virtual void OnDataRead(void* buffer, size_t bufferSize) {}
+    virtual bool OnDataRead(void* buffer, size_t bufferSize) { return true; }
 
 private:
     MessageType m_MessageType;
@@ -66,6 +66,11 @@ class InvalidMessage : public UniversalSysExMessageBase
 {
 public:
     InvalidMessage();
+
+public:
+    virtual int GetDataSize() override;
+    virtual void OnDataWritten(void* buffer, size_t bufferSize) override;
+    virtual bool OnDataRead(void* buffer, size_t bufferSize) override;
 };
 
 enum class CiCategorySupportedBitFlag : char
@@ -96,7 +101,7 @@ public:
 protected:
     virtual int GetDataSize() override;
     virtual void OnDataWritten(void* buffer, size_t bufferSize) override;
-    virtual void OnDataRead(void* buffer, size_t bufferSize) override;
+    virtual bool OnDataRead(void* buffer, size_t bufferSize) override;
 
 private:
     uint32_t m_DeviceManufacturer; // 3byte
@@ -123,7 +128,7 @@ public:
 protected:
     virtual int GetDataSize() override;
     virtual void OnDataWritten(void* buffer, size_t bufferSize) override;
-    virtual void OnDataRead(void* buffer, size_t bufferSize) override;
+    virtual bool OnDataRead(void* buffer, size_t bufferSize) override;
 
 private:
     uint32_t m_DeviceManufacturer; // 3byte
