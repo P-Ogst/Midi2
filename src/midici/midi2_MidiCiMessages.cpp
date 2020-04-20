@@ -177,7 +177,6 @@ int UniversalSysExMessageBase::Read(void* buffer, size_t bufferSize)
     m_DestMuid = ReadFromBuffer<uint32_t>(bufferPtr, 4);
     bufferPtr += 4;
 
-    // TODO: override ‚ª‚¤‚Ü‚­‚¢‚Á‚Ä‚¢‚È‚¢——R‚Ì’²¸
     if (!OnDataRead(bufferPtr, GetDataSize()))
     {
         return -1;

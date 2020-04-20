@@ -41,8 +41,18 @@ int main()
         }
         midi2::midici::MessageInterpreter interpreter;
         auto receivedMessageBytes = 0;
-        auto receivedMessage = interpreter.ReadMessage(&receivedMessageBytes, buffer, bufferBytes);
-        receivedMessage.Dump();
+        auto receivedMessageType = interpreter.ReadMessageType(buffer, bufferBytes);
+        if (receivedMessageType == midi2::midici::MessageType::Discovery)
+        {
+            auto message = midi2::midici::DiscoveryMessage();
+            message.Read(buffer, bufferBytes);
+            message.Dump();
+        }
+        else
+        {
+            printf("Undefined message.");
+            break;
+        }
 
         midi2::midici::ReplyToDiscoveryMessage message = midi2::midici::ReplyToDiscoveryMessage(0u, 0u, 0u, 0u, 0u, 0u, midi2::midici::CiCategorySupportedBitFlag::None, 256u);
         DWORD messageBytes = message.Write(buffer, sizeof(buffer) - 1);
