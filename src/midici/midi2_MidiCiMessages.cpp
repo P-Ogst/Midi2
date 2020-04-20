@@ -5,6 +5,27 @@ namespace midi2 { namespace midici {
 
 namespace
 {
+
+template <class T>
+T ReadFromBuffer(void* buffer, size_t bufferSize, size_t valueSize)
+{
+    if (bufferSize < valueSize)
+    {
+        return 0;
+    }
+
+    T result = 0;
+    char* bufferPtr = reinterpret_cast<char*>(buffer);
+    char* resultPtr = reinterpret_cast<char*>(&result);
+    for (int i = 0; i < valueSize; ++i)
+    {
+        *resultPtr = *bufferPtr;
+        bufferPtr++;
+        resultPtr++;
+    }
+    return result;
+}
+
 template <class T>
 T ReadFromBuffer(void* buffer, size_t bufferSize)
 {
@@ -26,16 +47,16 @@ T ReadFromBuffer(void* buffer, size_t bufferSize)
 }
 
 template <class T>
-void WriteToBuffer(void* buffer, size_t bufferSize, T value)
+void WriteToBuffer(void* buffer, size_t bufferSize, T value, size_t valueSize)
 {
-    if (bufferSize < sizeof(T))
+    if (bufferSize < valueSize)
     {
         return;
     }
 
     char* valuePtr = reinterpret_cast<char*>(&value);
     char* bufferPtr = reinterpret_cast<char*>(buffer);
-    for (int i = 0; i < sizeof(T); ++i)
+    for (int i = 0; i < valueSize; ++i)
     {
         *bufferPtr = *valuePtr;
         valuePtr++;
@@ -44,22 +65,11 @@ void WriteToBuffer(void* buffer, size_t bufferSize, T value)
 }
 
 template <class T>
-void WriteToBufferAsUint24(void* buffer, size_t bufferSize, T value)
+void WriteToBuffer(void* buffer, size_t bufferSize, T value)
 {
-    if (bufferSize < 3)
-    {
-        return;
-    }
-
-    char* valuePtr = reinterpret_cast<char*>(&value);
-    char* bufferPtr = reinterpret_cast<char*>(buffer);
-    for (int i = 0; i < 3; ++i)
-    {
-        *bufferPtr = *valuePtr;
-        valuePtr++;
-        bufferPtr++;
-    }
+    WriteToBuffer(buffer, bufferSize, value, sizeof(T));
 }
+
 }
 
 UniversalSysExMessageBase::UniversalSysExMessageBase(MessageType messageId, DeviceId deviceId, uint32_t sourceMuid, uint32_t destMuid)
@@ -233,7 +243,7 @@ int DiscoveryMessage::GetDataSize()
 void DiscoveryMessage::OnDataWritten(void* buffer, size_t bufferSize)
 {
     char* bufferPtr = reinterpret_cast<char*>(buffer);
-    WriteToBufferAsUint24(bufferPtr, 3, m_DeviceManufacturer);
+    WriteToBuffer(bufferPtr, 3, m_DeviceManufacturer, 3);
     bufferPtr += 3;
     WriteToBuffer(bufferPtr, 2, m_DeviceFamily);
     bufferPtr += 2;
@@ -249,7 +259,20 @@ void DiscoveryMessage::OnDataWritten(void* buffer, size_t bufferSize)
 
 bool DiscoveryMessage::OnDataRead(void* buffer, size_t bufferSize)
 {
-    return false;
+    char* bufferPtr = reinterpret_cast<char*>(buffer);
+    m_DeviceManufacturer = ReadFromBuffer<uint32_t>(bufferPtr, 3, 3);
+    bufferPtr += 3;
+    m_DeviceFamily = ReadFromBuffer<uint16_t>(bufferPtr, 2);
+    bufferPtr += 2;
+    m_FamilyModelNumber = ReadFromBuffer<uint16_t>(bufferPtr, 2);
+    bufferPtr += 2;
+    m_SoftwareRevisionLevel = ReadFromBuffer<uint32_t>(bufferPtr, 4);
+    bufferPtr += 4;
+    m_CategorySupported = static_cast<CiCategorySupportedBitFlag>(*bufferPtr);
+    bufferPtr++;
+    m_ReceivableMaximumSysExMessageSize = ReadFromBuffer<uint32_t>(bufferPtr, 4);
+
+    return true;
 }
 
 ReplyToDiscoveryMessage::ReplyToDiscoveryMessage()
@@ -276,7 +299,7 @@ int ReplyToDiscoveryMessage::GetDataSize()
 void ReplyToDiscoveryMessage::OnDataWritten(void* buffer, size_t bufferSize)
 {
     char* bufferPtr = reinterpret_cast<char*>(buffer);
-    WriteToBufferAsUint24(bufferPtr, 3, m_DeviceManufacturer);
+    WriteToBuffer(bufferPtr, 3, m_DeviceManufacturer, 3);
     bufferPtr += 3;
     WriteToBuffer(bufferPtr, 2, m_DeviceFamily);
     bufferPtr += 2;
