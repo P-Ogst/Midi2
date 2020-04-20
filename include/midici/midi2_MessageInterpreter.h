@@ -6,7 +6,9 @@ namespace midi2 { namespace midici {
 class MessageInterpreter
 {
 public:
-    UniversalSysExMessageBase ReadMessage(char* buffer, size_t bufferSize);
+    UniversalSysExMessageBase ReadMessage(int* pOutReadBytes, void* buffer, size_t bufferSize);
+private:
+    UniversalSysExMessageBase Parse(int* pOutReadBytes, void* buffer, size_t bufferSize);
 };
 
 }}

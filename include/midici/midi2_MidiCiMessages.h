@@ -45,12 +45,15 @@ public:
 
     MessageType GetMessageType();
     size_t GetMessageSize();
+    static size_t GetMessageSizeMin();
     int Write(void* buffer, size_t bufferSize);
+    int Read(void* buffer, size_t bufferSize);
     void Dump();
 
 protected:
     virtual int GetDataSize() { return 0; }
     virtual void OnDataWritten(void* buffer, size_t bufferSize) {}
+    virtual void OnDataRead(void* buffer, size_t bufferSize) {}
 
 private:
     MessageType m_MessageType;
@@ -81,6 +84,7 @@ enum class Muid : uint32_t
 class DiscoveryMessage : public UniversalSysExMessageBase
 {
 public:
+    DiscoveryMessage();
     DiscoveryMessage(uint32_t sourceMuid,
                      uint32_t deviceManufacturer,
                      uint16_t deviceFamily,
@@ -92,6 +96,7 @@ public:
 protected:
     virtual int GetDataSize() override;
     virtual void OnDataWritten(void* buffer, size_t bufferSize) override;
+    virtual void OnDataRead(void* buffer, size_t bufferSize) override;
 
 private:
     uint32_t m_DeviceManufacturer; // 3byte
@@ -105,6 +110,7 @@ private:
 class ReplyToDiscoveryMessage : public UniversalSysExMessageBase
 {
 public:
+    ReplyToDiscoveryMessage();
     ReplyToDiscoveryMessage(uint32_t sourceMuid,
                             uint32_t destMuid,
                             uint32_t deviceManufacturer,
@@ -117,6 +123,7 @@ public:
 protected:
     virtual int GetDataSize() override;
     virtual void OnDataWritten(void* buffer, size_t bufferSize) override;
+    virtual void OnDataRead(void* buffer, size_t bufferSize) override;
 
 private:
     uint32_t m_DeviceManufacturer; // 3byte

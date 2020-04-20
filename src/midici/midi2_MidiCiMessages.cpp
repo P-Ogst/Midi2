@@ -60,6 +60,11 @@ size_t UniversalSysExMessageBase::GetMessageSize()
     return static_cast<size_t>(15) + GetDataSize();
 }
 
+size_t UniversalSysExMessageBase::GetMessageSizeMin()
+{
+    return 15u;
+}
+
 int UniversalSysExMessageBase::Write(void* buffer, size_t bufferSize)
 {
     if (bufferSize < GetMessageSize() || GetMessageType() == MessageType::Invalid)
@@ -101,6 +106,12 @@ int UniversalSysExMessageBase::Write(void* buffer, size_t bufferSize)
     return static_cast<int>(GetMessageSize());
 }
 
+int UniversalSysExMessageBase::Read(void* buffer, size_t bufferSize)
+{
+    // TODO: Implmentation
+    return -1;
+}
+
 void UniversalSysExMessageBase::Dump()
 {
     if (GetMessageType() == MessageType::Invalid)
@@ -117,6 +128,11 @@ void UniversalSysExMessageBase::Dump()
         printf("%02x ", static_cast<unsigned char>(buf[i]));
     }
     printf("\n");
+}
+
+DiscoveryMessage::DiscoveryMessage()
+    : DiscoveryMessage(static_cast<uint32_t>(-1), static_cast<uint32_t>(-1), static_cast<uint16_t>(-1), static_cast<uint16_t>(-1), static_cast<uint32_t>(-1), midi2::midici::CiCategorySupportedBitFlag::None, static_cast<uint32_t>(-1))
+{
 }
 
 DiscoveryMessage::DiscoveryMessage(uint32_t sourceMuid, uint32_t deviceManufacturer, uint16_t deviceFamily, uint16_t familyModelNumber, uint32_t softwareRevisionLevel, CiCategorySupportedBitFlag categorySupported, uint32_t receivableMaximumSysExMessageSize)
@@ -152,6 +168,15 @@ void DiscoveryMessage::OnDataWritten(void* buffer, size_t bufferSize)
     bufferPtr += 4;
 }
 
+void DiscoveryMessage::OnDataRead(void* buffer, size_t bufferSize)
+{
+}
+
+ReplyToDiscoveryMessage::ReplyToDiscoveryMessage()
+    : ReplyToDiscoveryMessage(static_cast<uint32_t>(-1), static_cast<uint32_t>(-1), static_cast<uint32_t>(-1), static_cast<uint16_t>(-1), static_cast<uint16_t>(-1), static_cast<uint32_t>(-1), midi2::midici::CiCategorySupportedBitFlag::None, static_cast<uint32_t>(-1))
+{
+}
+
 ReplyToDiscoveryMessage::ReplyToDiscoveryMessage(uint32_t sourceMuid, uint32_t destMuid, uint32_t deviceManufacturer, uint16_t deviceFamily, uint16_t familyModelNumber, uint32_t softwareRevisionLevel, CiCategorySupportedBitFlag categorySupported, uint32_t receivableMaximumSysExMessageSize)
     : UniversalSysExMessageBase(MessageType::ReplyToDiscovery, DeviceId::MidiPort, sourceMuid, destMuid)
     , m_DeviceManufacturer(deviceManufacturer)
@@ -183,6 +208,10 @@ void ReplyToDiscoveryMessage::OnDataWritten(void* buffer, size_t bufferSize)
     bufferPtr += 1;
     WriteToBuffer(bufferPtr, 4, m_ReceivableMaximumSysExMessageSize);
     bufferPtr += 4;
+}
+
+void ReplyToDiscoveryMessage::OnDataRead(void* buffer, size_t bufferSize)
+{
 }
 
 InvalidMessage::InvalidMessage()

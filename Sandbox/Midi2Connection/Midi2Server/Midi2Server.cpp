@@ -40,10 +40,9 @@ int main()
             break;
         }
         midi2::midici::MessageInterpreter interpreter;
-        auto receivedMessage = interpreter.ReadMessage(buffer, bufferBytes);
+        auto receivedMessageBytes = 0;
+        auto receivedMessage = interpreter.ReadMessage(&receivedMessageBytes, buffer, bufferBytes);
         receivedMessage.Dump();
-        buffer[bufferBytes] = '\0';
-        printf("ReceivedMessage: %s\n", buffer);
 
         midi2::midici::ReplyToDiscoveryMessage message = midi2::midici::ReplyToDiscoveryMessage(0u, 0u, 0u, 0u, 0u, 0u, midi2::midici::CiCategorySupportedBitFlag::None, 256u);
         DWORD messageBytes = message.Write(buffer, sizeof(buffer) - 1);
