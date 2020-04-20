@@ -62,7 +62,7 @@ size_t UniversalSysExMessageBase::GetMessageSize()
 
 int UniversalSysExMessageBase::Write(void* buffer, size_t bufferSize)
 {
-    if (bufferSize < GetMessageSize())
+    if (bufferSize < GetMessageSize() || GetMessageType() == MessageType::Invalid)
     {
         return -1;
     }
@@ -103,6 +103,11 @@ int UniversalSysExMessageBase::Write(void* buffer, size_t bufferSize)
 
 void UniversalSysExMessageBase::Dump()
 {
+    if (GetMessageType() == MessageType::Invalid)
+    {
+        printf("Invalid Message\n");
+        return;
+    }
     char buf[4096];
     auto writeBytes = Write(buf, sizeof(buf));
 
@@ -178,6 +183,11 @@ void ReplyToDiscoveryMessage::OnDataWritten(void* buffer, size_t bufferSize)
     bufferPtr += 1;
     WriteToBuffer(bufferPtr, 4, m_ReceivableMaximumSysExMessageSize);
     bufferPtr += 4;
+}
+
+InvalidMessage::InvalidMessage()
+    : UniversalSysExMessageBase(MessageType::Invalid, static_cast<DeviceId>(-1), static_cast<uint32_t>(-1), static_cast<uint32_t>(-1))
+{
 }
 
 }

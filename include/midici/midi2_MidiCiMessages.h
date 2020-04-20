@@ -34,6 +34,7 @@ enum class MessageType : char
 {
     Discovery = 0x70,
     ReplyToDiscovery = 0x71,
+    Invalid = -1
 };
 
 class UniversalSysExMessageBase
@@ -56,6 +57,12 @@ private:
     DeviceId m_DeviceId;
     uint32_t m_SourceMuid;
     uint32_t m_DestMuid;
+};
+
+class InvalidMessage : public UniversalSysExMessageBase
+{
+public:
+    InvalidMessage();
 };
 
 enum class CiCategorySupportedBitFlag : char

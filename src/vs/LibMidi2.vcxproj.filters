@@ -24,9 +24,15 @@
     <ClInclude Include="..\..\include\midici\midi2_MidiCiMessages.h">
       <Filter>ヘッダー ファイル\midici</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\midici\midi2_MessageInterpreter.h">
+      <Filter>ヘッダー ファイル\midici</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\midici\midi2_MidiCiMessages.cpp">
+      <Filter>ソース ファイル\midici</Filter>
+    </ClCompile>
+    <ClCompile Include="..\midici\midi2_MessageInterpreter.cpp">
       <Filter>ソース ファイル\midici</Filter>
     </ClCompile>
   </ItemGroup>

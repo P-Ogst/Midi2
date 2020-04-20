@@ -4,6 +4,7 @@
 #include <iostream>
 #include <windows.h>
 #include <midici\midi2_MidiCiMessages.h>
+#include <midici\midi2_MessageInterpreter.h>
 
 int main()
 {
@@ -38,6 +39,9 @@ int main()
             printf("Cannot read NamedPipe");
             break;
         }
+        midi2::midici::MessageInterpreter interpreter;
+        auto receivedMessage = interpreter.ReadMessage(buffer, bufferBytes);
+        receivedMessage.Dump();
         buffer[bufferBytes] = '\0';
         printf("ReceivedMessage: %s\n", buffer);
 

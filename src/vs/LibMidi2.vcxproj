@@ -19,9 +19,11 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\include\midici\midi2_MessageInterpreter.h" />
     <ClInclude Include="..\..\include\midici\midi2_MidiCiMessages.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\midici\midi2_MessageInterpreter.cpp" />
     <ClCompile Include="..\midici\midi2_MidiCiMessages.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
